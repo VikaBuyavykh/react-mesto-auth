@@ -27,7 +27,7 @@ export default function Header({ loggedIn, onSignOut, email }) {
                     className="header__logo" />
                     <div className={`header__button ${isContentVisible ? 'header__button_type_cross' : 'header__button_type_list'}`} onClick={handleContent}/>
                 </div>
-            ) }
+            )}
 
             {!loggedIn 
             ? (
@@ -39,7 +39,7 @@ export default function Header({ loggedIn, onSignOut, email }) {
                     <p className='header__email'>{email}</p>
                     <p onClick={onSignOut} className="header__sign-out">Выйти</p>
                 </div>
-            ) }
+            )}
         </header>
     );
 }

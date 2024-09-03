@@ -1,3 +1,6 @@
 .header__content_visible {
-    display: flex;
+    visibility: visible;
+    height: fit-content;
+    padding: 40px 0;
+    gap: 18px;
 }

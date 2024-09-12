@@ -74,3 +74,4 @@
 @import url(./blocks/popup/__mark/_type/popup__mark_type_unsuccessful.css);
 @import url(./blocks/popup/__mark/popup__mark.css);
 @import url(./blocks/popup/__message/popup__message.css);
+@import url(./blocks/popup/__api-error/popup__api-error.css);

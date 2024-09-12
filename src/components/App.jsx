@@ -28,16 +28,11 @@ function App() {
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
-  const isOpen =
-    isEditProfilePopupOpen ||
-    isAddPlacePopupOpen ||
-    isEditAvatarPopupOpen ||
-    isCardPopupOpen ||
-    isInfoTooltipOpen;
   const [loggedIn, setLoggedIn] = useState(true);
-  const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [isRegisterSuccessful, setIsRegisterSuccessful] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   function handleInfoTooltip() {
     setIsInfoTooltipOpen(true);
@@ -139,7 +134,10 @@ function App() {
     setIsLoading(true);
     request()
       .then(closeAllPopups)
-      .catch(console.error)
+      .catch((error) => {
+        setError("На сервере произошла ошибка. Повторите попытку позже");
+        console.log(error);
+      })
       .finally(() => setIsLoading(false));
   }
 
@@ -178,7 +176,14 @@ function App() {
           return Promise.reject(`Ошибка: ${response.status}`);
         }
       })
-      .catch(console.error)
+      .catch((error) => {
+        if (error.message === "Ошибка: 401") {
+          setError("Пользователь с таким именем уже зарегистрирован");
+        } else {
+          setError("При регистрации произошла ошибка. Повторите попытку позже");
+        }
+        console.log(error);
+      })
       .finally(handleInfoTooltip);
   }
 
@@ -198,13 +203,39 @@ function App() {
           navigate("/");
         }
       })
-      .catch(console.error);
+      .catch((error) => {
+        if (error.message === "Ошибка: 401") {
+          setError("Вы ввели неправильный email или пароль");
+        } else {
+          setError("При авторизации произошла ошибка. Повторите попытку позже");
+        }
+        console.log(error);
+      });
   }
 
   function handleSignOut() {
     localStorage.removeItem("token");
     setLoggedIn(false);
     navigate("/sign-in");
+  }
+
+  function checkValidity(e) {
+    setError("");
+    const form = e.target.form;
+    const formErrors = form.querySelectorAll("span");
+    const formInputs = form.querySelectorAll("input");
+    const formButton = form.querySelector('button[type="submit"]');
+    const isFormInvalid = Array.from(formErrors).some((error) => {
+      return error.textContent !== "";
+    });
+    const hasAnEmptyInput = Array.from(formInputs).some((input) => {
+      return input.value === "";
+    });
+    if (!isFormInvalid && !hasAnEmptyInput) {
+      formButton.removeAttribute("disabled");
+    } else {
+      formButton.setAttribute("disabled", true);
+    }
   }
 
   useEffect(() => {
@@ -215,6 +246,9 @@ function App() {
     const token = localStorage.getItem("token");
     if (token) {
       auth(token);
+    } else {
+      setLoggedIn(false);
+      navigate("/sign-in");
     }
   }, [loggedIn]);
 
@@ -232,7 +266,11 @@ function App() {
               path="/sign-up"
               element={
                 <>
-                  <Register onRegister={handleRegister} />
+                  <Register
+                    onRegister={handleRegister}
+                    checkValidity={checkValidity}
+                    error={error}
+                  />
                   <InfoTooltip
                     isOpen={isInfoTooltipOpen}
                     isRegisterSuccessful={isRegisterSuccessful}
@@ -241,7 +279,16 @@ function App() {
                 </>
               }
             />
-            <Route path="/sign-in" element={<Login onLogin={handleLogin} />} />
+            <Route
+              path="/sign-in"
+              element={
+                <Login
+                  onLogin={handleLogin}
+                  checkValidity={checkValidity}
+                  error={error}
+                />
+              }
+            />
             <Route
               path="/"
               element={
@@ -266,12 +313,16 @@ function App() {
                     component={EditProfilePopup}
                     onUpdateUser={handleUpdateUser}
                     isOpen={isEditProfilePopupOpen}
+                    checkValidity={checkValidity}
+                    error={error}
                   />
                   <ProtectedRouteElement
                     loggedIn={loggedIn}
                     component={AddPlacePopup}
                     onAddPlace={handleAddPlaceSubmit}
                     isOpen={isAddPlacePopupOpen}
+                    checkValidity={checkValidity}
+                    error={error}
                   />
                   <ProtectedRouteElement
                     loggedIn={loggedIn}
@@ -281,16 +332,11 @@ function App() {
                   />
                   <ProtectedRouteElement
                     loggedIn={loggedIn}
-                    component={PopupWithForm}
-                    name="delete"
-                    title="Вы уверены?"
-                    buttonText="Да"
-                  />
-                  <ProtectedRouteElement
-                    loggedIn={loggedIn}
                     component={EditAvatarPopup}
                     onUpdateAvatar={handleUpdateAvatar}
                     isOpen={isEditAvatarPopupOpen}
+                    checkValidity={checkValidity}
+                    error={error}
                   />
                 </>
               }

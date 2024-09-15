@@ -1,13 +1,18 @@
+import { useEffect } from "react";
 import { useForm } from "../hooks/useForm";
 import handleInput from "../utils/handleInput";
 
-export default function Login({ onLogin, checkValidity, error }) {
+export default function Login({ onLogin, checkValidity, setError, error }) {
   const { values, handleChange } = useForm({ email: "", password: "" });
 
   function handleSubmit(evt) {
     evt.preventDefault();
     onLogin({ email: values.email, password: values.password });
   }
+
+  useEffect(() => {
+    return () => setError("");
+  }, []);
 
   return (
     <div className="popup__container popup__container_dark-theme">

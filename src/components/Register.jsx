@@ -1,8 +1,14 @@
 import { Link } from "react-router-dom";
 import { useForm } from "../hooks/useForm";
 import handleInput from "../utils/handleInput";
+import { useEffect } from "react";
 
-export default function Register({ onRegister, checkValidity, error }) {
+export default function Register({
+  onRegister,
+  checkValidity,
+  setError,
+  error,
+}) {
   const { values, handleChange } = useForm({ email: "", password: "" });
 
   function handleSubmit(evt) {
@@ -10,6 +16,10 @@ export default function Register({ onRegister, checkValidity, error }) {
     const { email, password } = values;
     onRegister({ email, password });
   }
+
+  useEffect(() => {
+    return () => setError("");
+  }, []);
 
   return (
     <div className="popup__container popup__container_dark-theme">

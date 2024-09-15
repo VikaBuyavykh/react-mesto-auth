@@ -176,8 +176,8 @@ function App() {
         }
       })
       .catch((error) => {
-        if (error.message === "Ошибка: 401") {
-          setError("Пользователь с таким именем уже зарегистрирован");
+        if (error === "Ошибка: 401") {
+          setError("Пользователь с таким email уже зарегистрирован");
         } else {
           setError("При регистрации произошла ошибка. Повторите попытку позже");
         }
@@ -203,7 +203,7 @@ function App() {
         }
       })
       .catch((error) => {
-        if (error.message === "Ошибка: 401") {
+        if (error === "Ошибка: 401") {
           setError("Вы ввели неправильный email или пароль");
         } else {
           setError("При авторизации произошла ошибка. Повторите попытку позже");
@@ -268,6 +268,7 @@ function App() {
                   <Register
                     onRegister={handleRegister}
                     checkValidity={checkValidity}
+                    setError={setError}
                     error={error}
                   />
                   <InfoTooltip
@@ -284,6 +285,7 @@ function App() {
                 <Login
                   onLogin={handleLogin}
                   checkValidity={checkValidity}
+                  setError={setError}
                   error={error}
                 />
               }
